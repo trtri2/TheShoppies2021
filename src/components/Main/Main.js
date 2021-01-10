@@ -119,7 +119,7 @@ function Main() {
 
     function getShareURL(){
         //REACT_APP_BASE_URL
-        let shareURL = REACT_APP_BASE_URL +'/#share=true';
+        let shareURL = process.env.REACT_APP_BASE_URL +'/#share=true';
         for (var key in nominations){
             shareURL = shareURL + '&' + encodeURIComponent(key);
         }
