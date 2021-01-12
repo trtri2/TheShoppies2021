@@ -55,7 +55,7 @@ function Header() {
                     <DialogContent>
                         <ListItem>
                             <ListItemIcon><BuildIcon/></ListItemIcon>
-                            <ListItemText>Javascript, ReactJS, NodeJS, Fetch API, and Material-UI</ListItemText>
+                            <ListItemText>Javascript, ReactJS, NodeJS, Express, Apollo GraphQL, and Material-UI</ListItemText>
                         </ListItem>
                     </DialogContent>
                     <DialogContent>
