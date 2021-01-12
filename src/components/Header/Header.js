@@ -66,7 +66,7 @@ function Header() {
                             </Button>
                             </ListItem>
                             <ListItem>
-                            <Button href="https://github.com/trtri2/TheShoppinees" target="_blank" fullWidth variant="contained" startIcon={<GitHubIcon/>}>
+                            <Button href="https://github.com/trtri2/TheShoppies2021" target="_blank" fullWidth variant="contained" startIcon={<GitHubIcon/>}>
                                 Github Repo
                             </Button>
                             </ListItem>
