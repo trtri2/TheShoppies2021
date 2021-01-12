@@ -22,7 +22,7 @@ My challenge submission for Shopify's UX & Web Developer Intern position for Sum
 
 ## REQUIREMENTS
 1. Users are able to find related movies by using a search term by title, using the [OMDB Database](http://www.omdbapi.com/)
-2. Search results are display to the user, listing the title, year of release, poster image if available, and the ability to select the movie for a nomination.
+2. Search results are displayed to the user, listing the movie title, year of release, poster image if available, and the ability to select the movie for a nomination.
 3. As the user is updating the search terms, the search results are updated to match.
 4. The user can remove movies from their nominations list.
 5. If the user nominates a movie, the movie will not be able to be nominated again.
