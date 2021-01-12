@@ -2,13 +2,11 @@
 
 My challenge submission for Shopify's UX & Web Developer Intern position for Summer 2021. A webpage where you can search OMDB for movie titles, nominate and share your Shoppinees for the Shoppies Awards!
 
-[Portfolio Website](https://trtri2.github.io/)
-[LinkedIn Profile](https://www.linkedin.com/in/trtri2/)
+[Portfolio Website](https://trtri2.github.io/) | [LinkedIn Profile](https://www.linkedin.com/in/trtri2/)
 
-# Demo: You can visit the live demo-app here: [The Shoppies](http://vote-shoppies-2021.herokuapp.com/)
-
-
-
+# Demo: 
+### You can visit the live demo app here: [The Shoppies Demo](http://vote-shoppies-2021.herokuapp.com/)
+<br/>
 
 ## TECHSTACK
 ### Front End
@@ -30,6 +28,8 @@ My challenge submission for Shopify's UX & Web Developer Intern position for Sum
 5. If the user nominates a movie, the movie will not be able to be nominated again.
 6. When the user has successfully nominated five movies, the user will be prompted of their completion.
 
+
+ 
 ## DESIGN CONSIDERATIONS
 
 ### APOLLO & GRAPHQL
