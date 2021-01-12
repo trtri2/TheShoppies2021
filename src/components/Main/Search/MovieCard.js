@@ -15,7 +15,9 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Tooltip from '@material-ui/core/Tooltip';
 import Grow from '@material-ui/core/Grow';
-import { getOMDBMovieByID } from '../../../js/omdb_api';
+
+import { useLazyQuery } from '@apollo/client';
+import { GET_MOVIE_BY_ID } from '../../../js/query';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -42,17 +44,10 @@ const useStyles = makeStyles((theme) => ({
 
 function MovieCard(props) {
     const [paperElevation, setPaperElevation] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [movieDetails, setMovieDetails] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [getMovie, {loading, data}] = useLazyQuery(GET_MOVIE_BY_ID);
 
     const classes = useStyles()
-
-    async function handleFetch(movieID) {
-        const response = await getOMDBMovieByID(movieID);
-        setMovieDetails(response);
-        setLoading(false);
-    }
 
     function handleOnMouseEnter(){
         setPaperElevation(20)
@@ -63,8 +58,8 @@ function MovieCard(props) {
     }
 
     function handleOnClick(){
-        setLoading(true);
-        handleFetch(props.movie.imdbID);
+        const id = props.movie.imdbID
+        getMovie({ variables: { id } });
         setDialogOpen(true);
     }
 
@@ -86,14 +81,14 @@ function MovieCard(props) {
         return (
             <Container>
                 <List>
-                    <ListItemText primary={movieDetails.Title} secondary="Title"/>
-                    <ListItemText primary={movieDetails.Released} secondary="Release Date"/>
-                    <ListItemText primary={movieDetails.Director} secondary="Director"/>
-                    <ListItemText primary={movieDetails.Genre} secondary="Genre(s)"/>
-                    <ListItemText primary={movieDetails.Awards} secondary="Awards"/>
-                    <ListItemText primary={movieDetails.imdbRating} secondary="Rating (IMDB)"/>
+                    <ListItemText primary={data.movie.Title} secondary="Title"/>
+                    <ListItemText primary={data.movie.Released} secondary="Release Date"/>
+                    <ListItemText primary={data.movie.Director} secondary="Director"/>
+                    <ListItemText primary={data.movie.Genre} secondary="Genre(s)"/>
+                    <ListItemText primary={data.movie.Awards} secondary="Awards"/>
+                    <ListItemText primary={data.movie.imdbRating} secondary="Rating (IMDB)"/>
                 </List>
-                <Typography variant="h5">{movieDetails.Plot}</Typography>
+                <Typography variant="h5">{data.movie.Plot}</Typography>
             </Container>
         )
     }
@@ -103,14 +98,14 @@ function MovieCard(props) {
                     <Grow in={true}>
                         <Paper elevation={paperElevation} onMouseEnter={handleOnMouseEnter} onMouseLeave={handleOnMouseLeave} className={classes.root}>
                             <Tooltip title="Click to view more" placement="top">
-                                <img onClick={handleOnClick} className={classes.media} src={props.movie.img} alt={props.movie.title}/>
+                                <img onClick={handleOnClick} className={classes.media} src={props.movie.Poster} alt={props.movie.Title}/>
                             </Tooltip>
                             <List dense disablePadding>
                                 <ListItem className={classes.content}>
-                                    <Typography noWrap>{props.movie.title}</Typography>
+                                    <Typography noWrap>{props.movie.Title}</Typography>
                                 </ListItem>
                                 <ListItem className={classes.content}>
-                                    <Typography variant="caption" >({props.movie.year})</Typography>
+                                    <Typography variant="caption" >({props.movie.Year})</Typography>
                                 </ListItem>
                             </List>
                             {props.movie.imdbID in props.nominations ? 
@@ -124,19 +119,19 @@ function MovieCard(props) {
                                 }
                         </Paper>
                     </Grow>
-                    { movieDetails &&
+                    { data && data.movie &&
                         <Dialog
                             open={dialogOpen}
                             onClose={handleDialogClose}
                             maxWidth='md'
                             fullWidth
                         >
-                            <DialogTitle className={classes.dialog}>{props.movie.title} ({props.movie.year})</DialogTitle>
+                            <DialogTitle className={classes.dialog}>Movie Details - {props.movie.Title} ({props.movie.Year})</DialogTitle>
                             <DialogContent className={classes.dialog}>
                                 {loading && <CircularProgress/>}
                                 <Grid container>
                                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                                        <img className={classes.detailedMedia} src={props.movie.img} alt={props.movie.title}/>
+                                        <img className={classes.detailedMedia} src={props.movie.Poster} alt={props.movie.Title}/>
                                     </Grid>
                                     <Grid item xs={12} sm={12} md={6} lg={6}>
                                         {displayMovieDetails()}

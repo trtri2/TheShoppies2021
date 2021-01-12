@@ -1,6 +1,5 @@
-import React, {useState, useCallback, useEffect} from 'react';
+import React, {useState, useCallback} from 'react';
 import MovieCard from './MovieCard';
-import {debounce} from "lodash";
 
 import LinearProgress from '@material-ui/core/LinearProgress';
 import {makeStyles} from '@material-ui/styles';
@@ -10,7 +9,10 @@ import TextField from '@material-ui/core/TextField';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import SearchIcon from '@material-ui/icons/Search';
 import Grid from '@material-ui/core/Grid';
-import { searchOMDBMovieByTitle } from '../../../js/omdb_api';
+
+import { useLazyQuery } from '@apollo/client';
+import { SEARCH_MOVIE } from '../../../js/query';
+import {debounce} from "lodash";
 import PosterPlaceholder from '../../../img/poster_placeholder.png'
 
 const useStyles = makeStyles((theme) => ({
@@ -26,42 +28,20 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Search(props) {
-    const [resultList, setResultList] = useState([])
-    const [searchTerm, setSearchTerm] = useState('')
-    const [loading, setLoading] = useState(false)
+    const [searchTerm, setSearchTerm] = useState(undefined)
+    const [getSearchResults, {loading, data}] = useLazyQuery(SEARCH_MOVIE);
 
     const handleChange = (event) => {
-        setSearchTerm(event.target.value);
+        if (event.target.value) {
+            debounceHandler(event.target.value)
+        }
     } 
 
-    const debounceHandler = useCallback(debounce((query) => {
-        handleSearch(query)
+    // A debounce function is used so we only query requests once the user is finished typing (1 second)
+    const debounceHandler = useCallback(debounce((term) => {
+       setSearchTerm(term)
+       getSearchResults({ variables: { term } });
     }, 1000), []);
-
-    async function handleSearch(query) {
-        setLoading(true);
-        const response = await searchOMDBMovieByTitle(query);
-        setLoading(false);
-        if (response && response.Search){
-            const results = response.Search.map((movie) => {
-                const poster = (movie.Poster !== "N/A") ? movie.Poster : PosterPlaceholder;
-                return {
-                    img: poster,
-                    title: movie.Title,
-                    year: movie.Year,
-                    imdbID: movie.imdbID,
-                }
-            })
-            setResultList(results);
-        } else {
-            setResultList([]);
-        }
-    }
-
-    useEffect(() => {
-        setLoading(true);
-        debounceHandler(searchTerm);
-    }, [searchTerm, debounceHandler])
 
     const classes = useStyles()
     return (
@@ -91,21 +71,25 @@ function Search(props) {
                         }}
                     />
                 </Box>
-                {loading ? <Box paddingBottom={10}><LinearProgress color="secondary"/></Box>:
+                {loading ? 
+                <Box paddingBottom={10}><LinearProgress color="secondary"/></Box> 
+                :
                 <Grid container alignItems="stretch" spacing={3}>
-                    { (searchTerm !== '') &&
-                    <Grid item xs={12}>
+                    {searchTerm !== undefined && <Grid item xs={12}>
                         <Typography color="primary" variant="subtitle1">Search Results for '{searchTerm}'</Typography>
-                    </Grid>
-                    }
-                    {resultList.map((res) => (
-                        <MovieCard isComplete={props.isComplete} movie={res} nominations={props.nominations} handleAddNomination={props.handleAddNomination} handleRemoveNomination={props.handleRemoveNomination}/>
-                    ))}
-                    { (searchTerm !== '') &&
+                    </Grid>}
+                    {data && data.searchResults && data.searchResults.Search && data.searchResults.Search.map((res) => 
+                        {
+                            if (res.Poster === 'N/A' || res.Poster === undefined){
+                                res.Poster = PosterPlaceholder
+                            }
+                            return <MovieCard isComplete={props.isComplete} movie={res} nominations={props.nominations} handleAddNomination={props.handleAddNomination} handleRemoveNomination={props.handleRemoveNomination}/>
+                        }
+                    )}
+                    {searchTerm !== undefined && 
                     <Grid item xs={12}>
                         <Typography color="primary" variant="caption">Not finding what you're looking for? Try refining your search query.</Typography>
-                    </Grid>
-                    }
+                    </Grid>}
                 </Grid>
                 }
             </div>

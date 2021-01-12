@@ -27,8 +27,9 @@ const useStyles = makeStyles((theme) => ({
 function Nominations(props) {
     const classes = useStyles();
     const [nominationList, setNominationList] = useState([]);
-
+    
     useEffect(() => {
+        // Convert the nominations object to a list
         setNominationList(Object.entries(props.nominations))
     }, [props])
 
@@ -40,8 +41,8 @@ function Nominations(props) {
                         {nominationList.map(([key, value]) => (
                             <Slide direction="right" in={true} mountOnEnter unmountOnExit>
                                 <ListItem>
-                                    <img className={classes.poster} src={value.img}/>
-                                    <ListItemText className={classes.text} id={"someid"} primary={value.title}/>
+                                    <img className={classes.poster} src={value.Poster}/>
+                                    <ListItemText className={classes.text} id={"someid"} primary={`${value.Title} (${value.Year})`}/>
                                     <IconButton onClick={() => props.handleRemoveNomination(key)}>
                                         <RemoveCircleIcon style={{color:'#800E13'}}/>
                                     </IconButton>

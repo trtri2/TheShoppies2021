@@ -1,8 +1,9 @@
-import './App.css';
+import React from 'react'
 import Header from './components/Header/Header'
 import Main from './components/Main/Main'
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
+import './App.css';
 
 const theme = createMuiTheme({
   typography: {
@@ -23,13 +24,12 @@ const theme = createMuiTheme({
 
 function App() {
   return (
-    <div>
       <ThemeProvider theme={theme}>
         <Header/>
         <Main/>
       </ThemeProvider>
-    </div>
   );
 }
+
 
 export default App;

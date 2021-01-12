@@ -8,10 +8,12 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
-import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {makeStyles} from '@material-ui/core/styles';
-import {getOMDBMovieByID} from '../../js/omdb_api';
-import PosterPlaceholder from '../../img/poster_placeholder.png'
+
+import { withApollo } from '@apollo/client/react/hoc';
+import { GET_MOVIE_BY_ID } from '../../js/query';
+
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -27,13 +29,15 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-function Main() {
+
+function Main({ client }) {
     const [nominations, setNominations] = useState({});
     const [isComplete, setIsComplete] = useState(false);
     const [isCopied, setIsCopied] = useState(false);
     const [snackBarOpen, setSnackBarOpen] = useState(false);
     const classes = useStyles()
 
+    // Function to parse URL parameters and return as an object
     function getHashParams() {
         var hashParams = {};
         var e, r = /([^&;=]+)=?([^&;]*)/g,
@@ -48,49 +52,36 @@ function Main() {
     
     function loadFromShareURL(params){
         /**
-         * INPUT: An object of the URL parameters parsed by getHashParams()
-         * Iterates the list of movie IDs and calls omdb_api.js to fetch the requests for each movie, and sets nominationLists
+         * Takes in an object with each movie ID parsed by getHashParams()
+         * Uses client.query to return promises so we can use Promise.all() for each query
          */
-        let promises = []
+        let queries = [];
         let newNominations = {}
-        for (var key in params){
-            if (key != 'share'){
-                promises.push(getOMDBMovieByID(key)
-                    .then(
-                        function(data){
-                            if (data.Response === "True"){
-                                const poster = (data.Poster !== "N/A") ? data.Poster : PosterPlaceholder;
-                                newNominations[data.imdbID] = {
-                                    img: poster,
-                                    title: data.Title,
-                                    year: data.Year,
-                                    imdbID: data.imdbID,
-                                }
-                            } 
-                        }
-                    )
+        for (const key_movieID in params){
+            if (key_movieID != 'share'){
+                queries.push(
+                    client.query({
+                        query: GET_MOVIE_BY_ID,
+                        variables: { id:key_movieID }
+                    })
+                    .then(result => {
+                        newNominations[result.data.movie.imdbID] = result.data.movie;
+                    })
                     .catch(err => console.log(err))
-                ) // end of push
+                )
             }
         }
-        Promise.all(promises)
-                .then(response => {
-                    setNominations(newNominations);
-                })
-                .catch(err => console.log(err));
+        Promise.all(queries)
+            .then(response => (setNominations(newNominations)))
+            .catch(err => console.log(err));
     }
     
-    function handleAddNomination(movieObj){
+    function handleAddNomination(movie){
         const numNominations = Object.keys(nominations).length;
         if (numNominations < 5){
             const newNominations = {
                 ...nominations,
-                [movieObj.imdbID]: {
-                    img: movieObj.img,
-                    title: movieObj.title,
-                    year: movieObj.year,
-                    imdbID: movieObj.imdbID
-                },
+                [movie.imdbID]: movie
             };
             setNominations(newNominations);
         } 
@@ -118,21 +109,21 @@ function Main() {
     }
 
     function getShareURL(){
-        //REACT_APP_BASE_URL
         let shareURL = process.env.REACT_APP_BASE_URL +'/#share=true';
         for (var key in nominations){
             shareURL = shareURL + '&' + encodeURIComponent(key);
         }
         return shareURL;
     }
-
+    
+    // Upon mount, check if we came from a share link URL
     useEffect(() => {
         const params = getHashParams();
         if (params.share){
             loadFromShareURL(params)
         }
     }, [])
-
+    
     useEffect(() => {
         if (Object.keys(nominations).length === 5){
             setIsComplete(true);
@@ -186,4 +177,4 @@ function Main() {
     );
 }
 
-export default Main;
+export default withApollo(Main);
