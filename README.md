@@ -1,6 +1,6 @@
 # THE SHOPPIES 2021 AWARDS
 
-My challenge submission for Shopify's UX & Web Developer Intern position for Summer 2021. A webpage where you can search OMDB for movie titles, nominate and share your Shoppinees for the Shoppies Awards!
+My challenge submission for Shopify's UX & Web Developer Intern position for 2021. A webpage where you can search OMDB for movie titles, nominate and share your Shoppinees for the Shoppies Awards!
 
 [Portfolio Website](https://trtri2.github.io/) | [LinkedIn Profile](https://www.linkedin.com/in/trtri2/)
 
